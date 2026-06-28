@@ -18,8 +18,20 @@ repositories {
 }
 
 dependencies {
+	// Spring AI BOM (1.1.x GA) manages versions of the MCP server starter below.
+	implementation platform('org.springframework.ai:spring-ai-bom:1.1.8')
+
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// Spring AI MCP server, servlet (WebMVC) transport — exposes the Streamable-HTTP
+	// MCP endpoint. Version supplied by the BOM above.
+	implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
+	// Community MCP security module (Spring AI 1.1.x / Spring Security 6.x line). Propagates
+	// the SecurityContext into MCP tool execution so method security works on tool methods.
+	// NOTE: the plain artifact, not '-spring-boot' (that line targets Spring Boot 4).
+	implementation 'org.springaicommunity:mcp-server-security:0.0.6'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	// Provides MockMvc security post-processors (e.g. jwt()) to simulate an
 	// authenticated principal in tests without a live authorization server.

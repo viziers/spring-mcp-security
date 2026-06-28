@@ -9,6 +9,16 @@
 spring:
   application:
     name: spring-mcp-security
+  ai:
+    mcp:
+      server:
+        # Identifies this MCP server to connecting clients.
+        name: spring-mcp-security
+        version: 0.0.1
+        # Streamable-HTTP transport (modern MCP transport). Required by the mcp-security
+        # module — the deprecated SSE transport is not supported. Exposes the MCP endpoint
+        # at /mcp by default (override: spring.ai.mcp.server.streamable-http.mcp-endpoint).
+        protocol: STREAMABLE
   security:
     oauth2:
       resourceserver:
@@ -30,3 +40,8 @@ mcp:
       # Expected `aud` (audience) claim — this resource server's identifier. Rejects a
       # token that was minted for a different service (prevents token redirection).
       audience: ${MCP_JWT_AUDIENCE:mcp-server}
+    oauth2:
+      # Authorization server issuer used by the MCP endpoint's mcp-security chain. The
+      # module discovers the server's JWKS/metadata from this issuer and advertises it to
+      # MCP clients (RFC 9728). Point this at your OAuth 2.0 authorization server.
+      issuer-uri: ${MCP_OAUTH2_ISSUER_URI:https://auth.example.com}
