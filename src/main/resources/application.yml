@@ -28,6 +28,25 @@ spring:
           # the application boots without contacting the authorization server. Point this
           # at your auth server's JWK Set (Keycloak, Auth0, Spring Authorization Server …).
           jwk-set-uri: ${MCP_JWT_JWK_SET_URI:https://auth.example.com/oauth2/jwks}
+      client:
+        # RFC 8693 token exchange: trade the caller's JWT for a token scoped to a
+        # downstream service ("service B"), preserving the caller's identity.
+        registration:
+          service-b:
+            provider: downstream-auth-server
+            client-id: ${MCP_TOKEN_EXCHANGE_CLIENT_ID:mcp-server}
+            # Externalized — never a real secret in source. Override per environment.
+            client-secret: ${MCP_TOKEN_EXCHANGE_CLIENT_SECRET:change-me}
+            client-authentication-method: client_secret_basic
+            authorization-grant-type: urn:ietf:params:oauth:grant-type:token-exchange
+            # Scope requested for the downstream-service token.
+            scope:
+              - service-b.invoke
+        provider:
+          downstream-auth-server:
+            # Token endpoint of the authorization server. Set directly (not issuer-uri) so
+            # there is no OIDC discovery at startup — boot and tests stay decoupled.
+            token-uri: ${MCP_TOKEN_EXCHANGE_TOKEN_URI:https://auth.example.com/oauth2/token}
 
 # Resource-server claim expectations. A valid signature alone is not sufficient: a token
 # must also be issued by the issuer we trust and minted for this server's audience.
@@ -45,3 +64,7 @@ mcp:
       # module discovers the server's JWKS/metadata from this issuer and advertises it to
       # MCP clients (RFC 9728). Point this at your OAuth 2.0 authorization server.
       issuer-uri: ${MCP_OAUTH2_ISSUER_URI:https://auth.example.com}
+  token-exchange:
+    # Audience requested for the exchanged downstream token (RFC 8693 `audience`). Identifies
+    # service B so its resource server accepts the token. Not sent by Spring by default.
+    audience: ${MCP_TOKEN_EXCHANGE_AUDIENCE:service-b}
