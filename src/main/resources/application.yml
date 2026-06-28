@@ -1,0 +1,32 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# spring-mcp-security — application configuration
+#
+# Every property an operator must set to run this resource server lives here, with a
+# comment explaining what it does. No secrets are stored in this file; values that vary
+# per environment are read from environment variables with a non-secret default so the
+# project boots out of the box for local exploration.
+# ──────────────────────────────────────────────────────────────────────────────
+spring:
+  application:
+    name: spring-mcp-security
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # JWKS endpoint that publishes the public keys used to verify JWT signatures
+          # (RFC 7517). Keys are fetched lazily on first token validation and cached, so
+          # the application boots without contacting the authorization server. Point this
+          # at your auth server's JWK Set (Keycloak, Auth0, Spring Authorization Server …).
+          jwk-set-uri: ${MCP_JWT_JWK_SET_URI:https://auth.example.com/oauth2/jwks}
+
+# Resource-server claim expectations. A valid signature alone is not sufficient: a token
+# must also be issued by the issuer we trust and minted for this server's audience.
+mcp:
+  security:
+    jwt:
+      # Expected `iss` (issuer) claim. Tokens issued by anyone else are rejected, even if
+      # signed by a key in the JWKS above.
+      issuer: ${MCP_JWT_ISSUER:https://auth.example.com}
+      # Expected `aud` (audience) claim — this resource server's identifier. Rejects a
+      # token that was minted for a different service (prevents token redirection).
+      audience: ${MCP_JWT_AUDIENCE:mcp-server}
