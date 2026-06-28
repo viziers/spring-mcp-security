@@ -3,6 +3,9 @@
 .idea/
 *.iml
 
+# Claude Code local config (may contain machine-specific settings / secrets)
+.claude/
+
 # Project agent instructions (kept local for now)
 CLAUDE.md
 
