@@ -1,0 +1,15 @@
+# Editor / IDE
+.vscode/
+.idea/
+*.iml
+
+# Project agent instructions (kept local for now)
+CLAUDE.md
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# OS
+.DS_Store
