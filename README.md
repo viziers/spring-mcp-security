@@ -85,14 +85,6 @@ Built one capability at a time; each is complete only when its tests pass.
 
 ---
 
-## Architecture Decision Records
-
-Every non-trivial decision has an ADR in [`docs/architecture-decisions/`](docs/architecture-decisions/),
-written at the moment of decision and following the standard format: context, options
-considered, decision, reasoning, consequences.
-
----
-
 ## Scope
 
 **This project is the resource-server side only.** It deliberately does not include:
