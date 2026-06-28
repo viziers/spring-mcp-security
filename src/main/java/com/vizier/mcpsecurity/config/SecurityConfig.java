@@ -3,6 +3,7 @@ package com.vizier.mcpsecurity.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -44,10 +45,14 @@ public class SecurityConfig {
 	}
 
 	/**
-	 * Defines the security filter chain: a stateless, default-deny resource server that
-	 * authenticates requests with the configured {@link JwtDecoder}.
+	 * Defines the default security filter chain: a stateless, default-deny resource server
+	 * that authenticates requests with the configured {@link JwtDecoder}.
+	 *
+	 * <p>Ordered after the MCP chain (see {@code McpSecurityConfig}, order 1): the MCP
+	 * endpoint is handled by that chain, and every other request falls through to this one.
 	 */
 	@Bean
+	@Order(2)
 	SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
 		http
 				.authorizeHttpRequests(authorize -> authorize
