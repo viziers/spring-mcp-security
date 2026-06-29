@@ -139,6 +139,22 @@ how the MCP spec evolved (see [`docs/sequence-diagrams/auth-flow.md`](docs/seque
 > **Ports:** app `8082`, Keycloak `8081`. Override the app port with `MCP_SERVER_PORT`.
 > Stop the auth server with `docker compose down`.
 
+### Multi-tenant demo
+
+The realm ships two clients whose tokens carry a different `tenant_id` claim:
+
+- `mcp-client` → `tenant_id: tenant-a`
+- `mcp-client-tenant-b` → `tenant_id: tenant-b`
+
+Each can only reach its own tenant's data. The store is seeded so tenant-a has records `1`
+and `2`, while tenant-b has only `1`. Calling the read tool for record `2`:
+
+- as `mcp-client` (tenant-a) returns `tenant-a record two`;
+- as `mcp-client-tenant-b` (tenant-b) returns "no record" — tenant-a's data is never visible,
+  even though the id exists.
+
+Get a tenant-b token the same way as step 3, swapping `client_id=mcp-client-tenant-b`.
+
 ---
 
 ## Scope
