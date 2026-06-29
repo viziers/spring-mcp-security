@@ -76,12 +76,60 @@ architectural choice with reasoning (see [Architecture Decision Records](#archit
 
 Built one capability at a time; each is complete only when its tests pass.
 
-- [ ] 1. OAuth 2.0 resource server configuration
-- [ ] 2. Tool-level scope enforcement
-- [ ] 3. RFC 8693 token exchange
+- [x] 1. OAuth 2.0 resource server configuration
+- [x] 2. Tool-level scope enforcement
+- [x] 3. RFC 8693 token exchange
 - [ ] 4. Multi-tenant isolation
 - [ ] 5. Audit logging via AOP
 - [ ] 6. `/.well-known` discovery document
+
+---
+
+## Running locally
+
+The MCP endpoint is a secured OAuth 2.0 resource that performs OIDC discovery at startup,
+so it needs an authorization server. A preconfigured one is provided via Docker.
+
+**Prerequisites:** Java 21+ (or just the Gradle wrapper — it self-provisions the JDK),
+Docker, and Docker Compose.
+
+**1. Start the authorization server** (Keycloak, realm `mcp`, on `http://localhost:8081`):
+
+```bash
+docker compose up -d
+```
+
+It exposes the issuer at `http://localhost:8081/realms/mcp` with `mcp:read` / `mcp:write`
+scopes and a confidential client `mcp-client` (secret `mcp-secret`). These are throwaway
+local-development credentials only.
+
+**2. Run the application** (listens on `http://localhost:8082`):
+
+```bash
+export MCP_OAUTH2_ISSUER_URI=http://localhost:8081/realms/mcp
+export MCP_JWT_ISSUER=http://localhost:8081/realms/mcp
+export MCP_JWT_JWK_SET_URI=http://localhost:8081/realms/mcp/protocol/openid-connect/certs
+
+./gradlew bootRun
+```
+
+**3. Get an access token** with the scopes you want (request `mcp:read`, `mcp:write`, or both):
+
+```bash
+curl -s -X POST http://localhost:8081/realms/mcp/protocol/openid-connect/token \
+  -d grant_type=client_credentials \
+  -d client_id=mcp-client -d client_secret=mcp-secret \
+  -d 'scope=mcp:read mcp:write' | jq -r .access_token
+```
+
+**4. Call the MCP server.** The Streamable-HTTP MCP endpoint is `http://localhost:8082/mcp`
+and requires `Authorization: Bearer <token>`. The OAuth protected-resource metadata
+(RFC 9728) is published at `http://localhost:8082/.well-known/oauth-protected-resource/mcp`.
+Point an MCP client (e.g. the MCP Inspector) at the endpoint with the bearer token; a token
+carrying only `mcp:read` can invoke the read tool but is denied the write tool.
+
+> **Ports:** app `8082`, Keycloak `8081`. Override the app port with `MCP_SERVER_PORT`.
+> Stop the auth server with `docker compose down`.
 
 ---
 

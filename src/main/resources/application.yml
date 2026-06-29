@@ -6,6 +6,11 @@
 # per environment are read from environment variables with a non-secret default so the
 # project boots out of the box for local exploration.
 # ──────────────────────────────────────────────────────────────────────────────
+server:
+  # HTTP port for this application. Avoids 8080 (commonly taken — e.g. Jenkins) and 8081
+  # (used by the local Keycloak in docker-compose). Override with MCP_SERVER_PORT.
+  port: ${MCP_SERVER_PORT:8082}
+
 spring:
   application:
     name: spring-mcp-security

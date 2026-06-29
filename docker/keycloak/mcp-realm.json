@@ -1,0 +1,52 @@
+{
+  "realm": "mcp",
+  "enabled": true,
+  "accessTokenLifespan": 3600,
+  "sslRequired": "none",
+  "clientScopes": [
+    {
+      "name": "mcp:read",
+      "description": "Read access to MCP tools",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "mcp:write",
+      "description": "Write access to MCP tools",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "mcp-client",
+      "name": "MCP demo client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "mcp-secret",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "optionalClientScopes": ["mcp:read", "mcp:write"],
+      "protocolMappers": [
+        {
+          "name": "mcp-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "mcp-server",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ]
+}

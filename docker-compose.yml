@@ -1,0 +1,30 @@
+# Local development authorization server.
+#
+# Starts a preconfigured Keycloak that issues JWTs for the MCP server: a realm named
+# "mcp" with the mcp:read and mcp:write scopes and an mcp-client for obtaining tokens.
+# This exists so the project is runnable end to end — the MCP security chain performs
+# OIDC discovery at startup and therefore needs a reachable authorization server.
+#
+# Usage: docker compose up -d   (then see the README "Running locally" section)
+#
+# These are throwaway local-development credentials only. Never use them anywhere real.
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: mcp-keycloak
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      # Host 8081 -> container 8080. The issuer is http://localhost:8081/realms/mcp.
+      - "8081:8080"
+    volumes:
+      - ./docker/keycloak/mcp-realm.json:/opt/keycloak/data/import/mcp-realm.json:ro
+    healthcheck:
+      # Keycloak 26 exposes health on the management port (9000).
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
