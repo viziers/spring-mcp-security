@@ -73,3 +73,7 @@ mcp:
     # Audience requested for the exchanged downstream token (RFC 8693 `audience`). Identifies
     # service B so its resource server accepts the token. Not sent by Spring by default.
     audience: ${MCP_TOKEN_EXCHANGE_AUDIENCE:service-b}
+  audit:
+    # Parameter names (comma-separated, case-insensitive substring match) whose values are
+    # redacted in the audit log. Add any tool input field that may carry sensitive data.
+    sensitive-parameters: ${MCP_AUDIT_SENSITIVE_PARAMETERS:password,secret,token,credential,authorization}
