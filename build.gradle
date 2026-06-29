@@ -25,6 +25,8 @@ dependencies {
 	// OAuth2 client — provides the RFC 8693 token-exchange grant support
 	// (TokenExchangeOAuth2AuthorizedClientProvider) used to delegate identity downstream.
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	// AOP — the audit interceptor wraps @Tool methods without touching tool code.
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
 	// Spring AI MCP server, servlet (WebMVC) transport — exposes the Streamable-HTTP
