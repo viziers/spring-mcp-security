@@ -6,8 +6,8 @@ A reference implementation showing how to secure [Model Context Protocol](https:
 This is not a framework or a library. It is a working, runnable example that a Spring
 Boot developer can read, understand, and adapt to their own stack with confidence.
 
-> **Status: early development.** The repository is being built capability by
-> capability. See [Roadmap](#roadmap) for what is implemented today.
+> All six demonstrated capabilities are implemented (see [Roadmap](#roadmap)), each with
+> tests. The project is a reference to read and adapt, not a versioned artifact to depend on.
 
 ---
 
@@ -21,8 +21,8 @@ Three things recently became true at the same time:
   auth layer.
 
 This project is that reference. Every implementation decision traces back to a
-published standard, and where a decision is not spec-mandated, it is documented as an
-architectural choice with reasoning (see [Architecture Decision Records](#architecture-decision-records)).
+published standard, and where a decision is not spec-mandated, it is made as a deliberate
+architectural choice with reasoning.
 
 ---
 
@@ -37,7 +37,7 @@ architectural choice with reasoning (see [Architecture Decision Records](#archit
 3. **RFC 8693 token exchange** — cascading delegation: a token valid at service A is
    exchanged for a token valid at service B while preserving the original user
    identity, so authenticated context travels across MCP boundaries without
-   credential re-entry.
+   credential re-entry (see [`docs/sequence-diagrams/token-exchange-flow.md`](docs/sequence-diagrams/token-exchange-flow.md)).
 4. **Multi-tenant isolation** — tool calls are scoped to the authenticated tenant,
    extracted from JWT claims; one tenant cannot reach another's data through a shared
    server.
@@ -79,9 +79,9 @@ Built one capability at a time; each is complete only when its tests pass.
 - [x] 1. OAuth 2.0 resource server configuration
 - [x] 2. Tool-level scope enforcement
 - [x] 3. RFC 8693 token exchange
-- [ ] 4. Multi-tenant isolation
-- [ ] 5. Audit logging via AOP
-- [ ] 6. `/.well-known` discovery document
+- [x] 4. Multi-tenant isolation
+- [x] 5. Audit logging via AOP
+- [x] 6. `/.well-known` discovery document
 
 ---
 
@@ -123,10 +123,18 @@ curl -s -X POST http://localhost:8081/realms/mcp/protocol/openid-connect/token \
 ```
 
 **4. Call the MCP server.** The Streamable-HTTP MCP endpoint is `http://localhost:8082/mcp`
-and requires `Authorization: Bearer <token>`. The OAuth protected-resource metadata
-(RFC 9728) is published at `http://localhost:8082/.well-known/oauth-protected-resource/mcp`.
-Point an MCP client (e.g. the MCP Inspector) at the endpoint with the bearer token; a token
-carrying only `mcp:read` can invoke the read tool but is denied the write tool.
+and requires `Authorization: Bearer <token>`. Point an MCP client (e.g. the MCP Inspector)
+at the endpoint with the bearer token; a token carrying only `mcp:read` can invoke the read
+tool but is denied the write tool.
+
+**Discovery.** Two metadata documents let clients discover how to authenticate, reflecting
+how the MCP spec evolved (see [`docs/sequence-diagrams/auth-flow.md`](docs/sequence-diagrams/auth-flow.md)):
+
+- `http://localhost:8082/.well-known/oauth-protected-resource/mcp` — Protected Resource
+  Metadata (RFC 9728), served by the `mcp-security` module; an unauthenticated call to
+  `/mcp` points here.
+- `http://localhost:8082/.well-known/oauth-authorization-server` — Authorization Server
+  Metadata (RFC 8414), the MCP 2025-03-26 discovery document.
 
 > **Ports:** app `8082`, Keycloak `8081`. Override the app port with `MCP_SERVER_PORT`.
 > Stop the auth server with `docker compose down`.
