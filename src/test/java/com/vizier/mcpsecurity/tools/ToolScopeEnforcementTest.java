@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+
+import com.vizier.mcpsecurity.support.WithMockJwt;
 
 /**
  * Verifies per-tool scope enforcement: each tool's {@code @PreAuthorize} guard admits a
@@ -31,34 +32,34 @@ class ToolScopeEnforcementTest {
 	private ExampleWriteTool writeTool;
 
 	@Test
-	@WithMockUser(authorities = "SCOPE_mcp:read")
+	@WithMockJwt(scopes = "mcp:read")
 	void readToolAllowedWithReadScope() {
-		assertThat(readTool.readExample("42")).contains("42");
+		assertThat(readTool.readExample("1")).isEqualTo("tenant-a record one");
 	}
 
 	@Test
-	@WithMockUser(authorities = "SCOPE_mcp:write")
+	@WithMockJwt(scopes = "mcp:write")
 	void readToolDeniedWithoutReadScope() {
-		assertThatThrownBy(() -> readTool.readExample("42"))
+		assertThatThrownBy(() -> readTool.readExample("1"))
 				.isInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
-	@WithMockUser(authorities = "SCOPE_mcp:write")
+	@WithMockJwt(scopes = "mcp:write")
 	void writeToolAllowedWithWriteScope() {
-		assertThat(writeTool.writeExample("42", "value")).contains("value");
+		assertThat(writeTool.writeExample("9", "value")).contains("value");
 	}
 
 	@Test
-	@WithMockUser(authorities = "SCOPE_mcp:read")
+	@WithMockJwt(scopes = "mcp:read")
 	void writeToolDeniedWithoutWriteScope() {
-		assertThatThrownBy(() -> writeTool.writeExample("42", "value"))
+		assertThatThrownBy(() -> writeTool.writeExample("9", "value"))
 				.isInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	void toolDeniedWhenUnauthenticated() {
-		assertThatThrownBy(() -> readTool.readExample("42"))
+		assertThatThrownBy(() -> readTool.readExample("1"))
 				.isInstanceOf(AuthenticationCredentialsNotFoundException.class);
 	}
 }
