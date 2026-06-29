@@ -26,7 +26,7 @@
   "clients": [
     {
       "clientId": "mcp-client",
-      "name": "MCP demo client",
+      "name": "MCP demo client (tenant-a)",
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,
@@ -42,6 +42,54 @@
           "protocolMapper": "oidc-audience-mapper",
           "config": {
             "included.custom.audience": "mcp-server",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "tenant-id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "config": {
+            "claim.name": "tenant_id",
+            "claim.value": "tenant-a",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "mcp-client-tenant-b",
+      "name": "MCP demo client (tenant-b)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "mcp-secret",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "optionalClientScopes": ["mcp:read", "mcp:write"],
+      "protocolMappers": [
+        {
+          "name": "mcp-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "mcp-server",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "tenant-id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "config": {
+            "claim.name": "tenant_id",
+            "claim.value": "tenant-b",
+            "jsonType.label": "String",
             "access.token.claim": "true",
             "id.token.claim": "false"
           }
