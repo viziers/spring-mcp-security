@@ -1,5 +1,7 @@
 package com.vizier.mcpsecurity.config;
 
+import jakarta.servlet.DispatcherType;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,6 +58,11 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
 		http
 				.authorizeHttpRequests(authorize -> authorize
+						// Let error responses render with their true status. A 404 forwards to
+						// /error as a servlet ERROR dispatch that re-enters this chain; without
+						// this, unauthenticated 404s would be masked as 401s. Protected resources
+						// are still guarded on their normal (REQUEST) dispatch below.
+						.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
 						// Public endpoints: liveness, and the OAuth metadata document added in
 						// the discovery section. Everything else requires a valid token.
 						.requestMatchers("/", "/actuator/health", "/.well-known/**").permitAll()
