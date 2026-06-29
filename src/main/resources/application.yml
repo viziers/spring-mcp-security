@@ -77,3 +77,15 @@ mcp:
     # Parameter names (comma-separated, case-insensitive substring match) whose values are
     # redacted in the audit log. Add any tool input field that may carry sensitive data.
     sensitive-parameters: ${MCP_AUDIT_SENSITIVE_PARAMETERS:password,secret,token,credential,authorization}
+  discovery:
+    # Values published in the OAuth 2.0 Authorization Server Metadata document
+    # (/.well-known/oauth-authorization-server, RFC 8414) so MCP clients can discover the
+    # authorization server's endpoints. Point these at your real authorization server; they
+    # are not validated against it at runtime. issuer/jwks-uri reuse the resource-server
+    # env vars so a single deployment stays consistent.
+    issuer: ${MCP_OAUTH2_ISSUER_URI:https://auth.example.com}
+    authorization-endpoint: ${MCP_DISCOVERY_AUTHORIZATION_ENDPOINT:https://auth.example.com/oauth2/authorize}
+    token-endpoint: ${MCP_DISCOVERY_TOKEN_ENDPOINT:https://auth.example.com/oauth2/token}
+    jwks-uri: ${MCP_JWT_JWK_SET_URI:https://auth.example.com/oauth2/jwks}
+    # Scopes advertised as supported (comma-separated).
+    scopes-supported: ${MCP_DISCOVERY_SCOPES:mcp:read,mcp:write}
